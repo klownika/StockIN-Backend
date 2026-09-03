@@ -1,0 +1,6 @@
+@KinestockApi_HostAddress = http://localhost:5198
+
+GET {{KinestockApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
