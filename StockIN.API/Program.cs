@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using StockIN.API.Data;
+using StockIN.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 Console.WriteLine($"Connection string encontrada: {!string.IsNullOrEmpty(connectionString)}");
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<AuthService>();
+
 
 //Cuando algún Controller o Service necesite AppDbContext, se le da una instancia conectada a PostgreSQL mediante el paquete Npgsql
 
