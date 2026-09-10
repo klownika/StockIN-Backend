@@ -53,5 +53,7 @@ public partial class Employee
 
     public virtual Employee? ReportsToNavigation { get; set; }
 
+    public virtual UserAccount? UserAccount { get; set; }
+
     public virtual ICollection<Warehouse> Warehouses { get; set; } = new List<Warehouse>();
 }

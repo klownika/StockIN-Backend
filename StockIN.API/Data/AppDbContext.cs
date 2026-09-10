@@ -36,9 +36,13 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
 
+    public virtual DbSet<Role> Roles { get; set; }
+
     public virtual DbSet<Shipper> Shippers { get; set; }
 
     public virtual DbSet<Supplier> Suppliers { get; set; }
+
+    public virtual DbSet<UserAccount> UserAccounts { get; set; }
 
     public virtual DbSet<Warehouse> Warehouses { get; set; }
 
@@ -499,6 +503,20 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("fk_pod_purchase_orders");
         });
 
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.RoleId).HasName("pk_roles");
+
+            entity.ToTable("roles");
+
+            entity.HasIndex(e => e.RoleName, "uq_roles_role_name").IsUnique();
+
+            entity.Property(e => e.RoleId).HasColumnName("role_id");
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(30)
+                .HasColumnName("role_name");
+        });
+
         modelBuilder.Entity<Shipper>(entity =>
         {
             entity.HasKey(e => e.ShipperId).HasName("shippers_pkey");
@@ -550,6 +568,50 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Region)
                 .HasMaxLength(15)
                 .HasColumnName("region");
+        });
+
+        modelBuilder.Entity<UserAccount>(entity =>
+        {
+            entity.HasKey(e => e.UserAccountId).HasName("pk_user_accounts");
+
+            entity.ToTable("user_accounts");
+
+            entity.HasIndex(e => e.RoleId, "idx_user_accounts_role_id");
+
+            entity.HasIndex(e => e.EmployeeId, "uq_user_accounts_employee_id").IsUnique();
+
+            entity.HasIndex(e => e.Username, "uq_user_accounts_username").IsUnique();
+
+            entity.Property(e => e.UserAccountId).HasColumnName("user_account_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("created_at");
+            entity.Property(e => e.EmployeeId).HasColumnName("employee_id");
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
+            entity.Property(e => e.LastLoginAt).HasColumnName("last_login_at");
+            entity.Property(e => e.MustChangePassword)
+                .HasDefaultValue(true)
+                .HasColumnName("must_change_password");
+            entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
+            entity.Property(e => e.RoleId).HasColumnName("role_id");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .HasColumnName("username");
+
+            entity.HasOne(d => d.Employee).WithOne(p => p.UserAccount)
+                .HasForeignKey<UserAccount>(d => d.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_user_accounts_employees");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.UserAccounts)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_user_accounts_roles");
         });
 
         modelBuilder.Entity<Warehouse>(entity =>
